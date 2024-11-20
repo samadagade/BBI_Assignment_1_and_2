@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Number Calculator</title>
+</head>
+<body>
+
+    <h1>Prime Number Calculator</h1>
+
+    <label for="limit">Enter Limit:</label>
+    <input type="number" id="limit" placeholder="Enter limit" required>
+
+    <label for="cores">Select Number of Cores:</label>
+    <select id="cores">
+        <option value="2">2 Cores</option>
+        <option value="4">4 Cores</option>
+        <option value="6">6 Cores</option>
+        <option value="8">8 Cores</option>
+        <option value="10">10 Cores</option>
+    </select>
+
+    <button id="singleThreadBtn">Single-Threaded Calculation</button>
+
+    <button id="multiThreadBtn">Multi-Threaded Calculation</button>
+
+    <p id="result"></p>
+
+    <div id="progress">Calculating, please wait...</div>
+
+    <script src="main.js"></script>
+    <script src="worker-thread.js"></script>
+</body>
+</html>

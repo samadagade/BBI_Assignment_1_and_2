@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced File Downloader</title>
+  <style>
+    .download-item {
+      margin-bottom: 10px;
+    }
+    .progress-bar {
+      width: 100%;
+      background: #ddd;
+      border: 1px solid #aaa;
+      height: 20px;
+      position: relative;
+    }
+    .progress {
+      background: green;
+      height: 100%;
+      width: 0;
+    }
+    .status {
+      margin-left: 10px;
+    }
+    .pause-btn {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Enhanced File Downloader</h1>
+  <input type="text" id="urlInput" placeholder="Enter file URL" />
+  <button id="addButton">Add</button>
+  <div id="downloadList"></div>
+  <script src="main.js"></script>
+</body>
+</html>
