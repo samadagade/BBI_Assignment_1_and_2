@@ -35,25 +35,27 @@ public class SmartTV implements NetworkConnected, PowerControl, TemperatureContr
 
   @Override
   public void muteVolume() {
-    if(isOn){
+    if (isOn) {
       isMuted = true;
       System.out.println("SmartTV is Muted");
-    }
-    else{
+    } else {
       System.out.println("Please Turn On device.");
     }
-    
+
   }
 
   @Override
   public void setTemperature(int temperature) {
-    if(!isOn){
+    // temperature of smartTV should be between 25 to 50
+    if (temperature < 25 || temperature > 50) {
+      System.out.println("Temperature Should Between 25-50");
+      return;
+    }
+    if (!isOn) {
       System.out.println("Please Turn On Device.");
-    }
-    else if(!isConnected){
+    } else if (!isConnected) {
       System.out.print("Please Turn On Internet");
-    }
-    else{
+    } else {
       this.temperature = temperature;
       System.out.println("Temperature set to " + temperature + " degree.");
     }
@@ -61,13 +63,11 @@ public class SmartTV implements NetworkConnected, PowerControl, TemperatureContr
 
   @Override
   public int getTemperature() {
-    if(!isOn){
+    if (!isOn) {
       return -100;
-    }
-    else if(!isConnected){
+    } else if (!isConnected) {
       return -200;
-    }
-    else{
+    } else {
       return temperature;
     }
   }
@@ -89,8 +89,7 @@ public class SmartTV implements NetworkConnected, PowerControl, TemperatureContr
     if (isOn) {
       isConnected = true;
       System.out.println("Connected to WiFi network: " + address);
-    }
-    else{
+    } else {
       System.out.println("Please Turn On Device First");
     }
   }
@@ -99,18 +98,18 @@ public class SmartTV implements NetworkConnected, PowerControl, TemperatureContr
   public boolean checkConnection() {
     try {
       if (!isOn) {
-          throw new IllegalStateException("Turn on Device."); // Throw an exception if the device is off.
+        throw new IllegalStateException("Turn on Device."); // Throw an exception if the device is off.
       }
 
       // If the device is on, check the connection status.
       return isConnected;
-  } catch (IllegalStateException e) {
+    } catch (IllegalStateException e) {
       System.out.println(e.getMessage()); // Print the exception message ("Turn on Device.")
       return false; // Return false, as connection cannot be checked when the device is off.
-  }
+    }
     // if(!isOn){
-    //   System.out.println("Turn on Device.");
-    //   return false;
+    // System.out.println("Turn on Device.");
+    // return false;
     // }
     // return isConnected && isOn;
   }
@@ -120,17 +119,16 @@ public class SmartTV implements NetworkConnected, PowerControl, TemperatureContr
     if (isOn) {
       isMuted = false;
       System.out.println("SmartTV Unmuted. Now Volum level is" + volume);
-    }
-    else{
+    } else {
       System.out.println("Please Turn On Device.");
     }
-   
+
   }
 
   @Override
   public int getVolume() {
 
-    if(!isOn){
+    if (!isOn) {
       System.out.println("Please Turn On Device");
       return -1;
     }
@@ -148,11 +146,10 @@ public class SmartTV implements NetworkConnected, PowerControl, TemperatureContr
   public boolean powerStatus() {
     return isOn;
   }
-  
-  @Override
-  public boolean muteStatus(){
-    return isMuted;
- }
 
+  @Override
+  public boolean muteStatus() {
+    return isMuted;
+  }
 
 }
