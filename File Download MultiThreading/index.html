@@ -3,36 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enhanced File Downloader</title>
-  <style>
-    .download-item {
-      margin-bottom: 10px;
-    }
-    .progress-bar {
-      width: 100%;
-      background: #ddd;
-      border: 1px solid #aaa;
-      height: 20px;
-      position: relative;
-    }
-    .progress {
-      background: green;
-      height: 100%;
-      width: 0;
-    }
-    .status {
-      margin-left: 10px;
-    }
-    .pause-btn {
-      margin-left: 10px;
-    }
-  </style>
+  <title>Download Manager</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Enhanced File Downloader</h1>
-  <input type="text" id="urlInput" placeholder="Enter file URL" />
-  <button id="addButton">Add</button>
-  <div id="downloadList"></div>
+  <h1 id="app-title"></h1>
+  <div class="input-container">
+    <input id="url-input" type="text" placeholder="" />
+    <button id="add-download"></button>
+  </div>
+  <div id="downloads"></div>
+
   <script src="main.js"></script>
+  <script>
+    // Load the strings.json file and update the UI
+    fetch('strings.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('app-title').innerText = data.appTitle;
+        document.getElementById('url-input').placeholder = data.urlInputPlaceholder;
+        document.getElementById('add-download').innerText = data.addDownloadButton;
+      })
+      .catch(error => console.error('Error loading strings:', error));
+  </script>
 </body>
 </html>

@@ -1,61 +1,65 @@
-let paused = false;
-let receivedLength = 0;
-let chunks = [];
+let downloadState = {
+  paused: false,
+  url: null,
+  position: 0,
+  chunks: [],
+  totalSize: 0,
+};
 
-self.onmessage = async (e) => {
-  const { type, url, receivedLength: resumeLength, chunks: resumeChunks } = e.data;
+self.onmessage = async (event) => {
+  const { action, url } = event.data;
 
-  if (type === "start" || type === "resume") {
-    paused = false;
-    receivedLength = resumeLength || 0;
-    chunks = resumeChunks || [];
-
-    try {
-      const headers = receivedLength                      //ternary operator
-        ? { Range: `bytes=${receivedLength}-` }    //for start received length is 0 so header not included and req. fetch whole file
-        : {};                                     //if some part of file is downloaded assing header and after resume from that point
-
-      const response = await fetch(url, { headers });  //req to JS's fetch API  fetch() perfrom HTTP req. to specific url header will store 
-                                                        //header : gives range, content type
-
-      if (!response.ok && response.status !== 206 && receivedLength > 0) {  //showing error if not get response
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body.getReader();  //body is downloaded data i.e. content of file
-                                                //.getReader() allows to read the data
-
-      const contentLength =
-        +response.headers.get("Content-Range")?.split("/")[1] || 
-        +response.headers.get("Content-Length");       //shows how much bytes received form total size of file
-
-      while (true) {         //reading the file
-
-        if (paused) break;    //check if pause if it is look break and no data is fetch until resume
-
-        const { done, value } = await reader.read();  //done : whether file has fully read //value : chunks of data
-
-        if (done) break;         //if done(file is fully read) break the loop
-
-        chunks.push(value);     //the chunks of data pushed into chunks array
-
-        receivedLength += value.length;  //update received length with adding length of current chunk
-
-        const progress = Math.round((receivedLength / contentLength) * 100);  //to find progress
-
-        postMessage({ type: "progress", progress, receivedLength, chunks });  //send main thread all the variable chunks downloaded so far
-      }
-
-      if (!paused) {   //if we not pause download the bolb(dowloaded file) is created using chunks
-        const blob = new Blob(chunks);         //creaing bolb(downloaded file) using chunks
-
-        postMessage({ type: "complete", blob });  //send file complete to the main thread
-      }
-
-    } catch (error) {  //if the any error occur during fetching an file show that error
-      postMessage({ type: "error", error: error.message });
-    }
-  } else if (type === "pause") {  //stop the download after current chunk is downloaded
-    paused = true;
+  if (action === 'start') {
+    downloadState.url = url;
+    downloadState.paused = false;
+    await fetchAndDownload();
+  } else if (action === 'pause') {
+    downloadState.paused = true;
+  } else if (action === 'resume') {
+    downloadState.paused = false;
+    await fetchAndDownload();
   }
 };
+
+async function fetchAndDownload() {
+  if (downloadState.paused) return;
+
+  try {
+    const response = await fetch(downloadState.url, {
+      headers: downloadState.position > 0 ? { Range: `bytes=${downloadState.position}-` } : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
+
+    // Set total size only on the first request
+    if (downloadState.totalSize === 0) {
+      const contentLength = response.headers.get('content-length');
+      const contentRange = response.headers.get('content-range');
+      downloadState.totalSize = contentRange
+        ? parseInt(contentRange.split('/')[1], 10)
+        : parseInt(contentLength, 10);
+    }
+
+    const reader = response.body.getReader();
+
+    while (!downloadState.paused) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      downloadState.chunks.push(value);
+      downloadState.position += value.length;
+
+      const progress = Math.round((downloadState.position / downloadState.totalSize) * 100);
+      self.postMessage({ type: 'progress', progress });
+    }
+
+    if (downloadState.position === downloadState.totalSize) {
+      const blob = new Blob(downloadState.chunks);
+      self.postMessage({ type: 'completed', blob });
+    }
+  } catch (error) {
+    self.postMessage({ type: 'error', error: error.message });
+  }
+}

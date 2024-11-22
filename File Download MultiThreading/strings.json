@@ -1,0 +1,12 @@
+{
+    "appTitle": "Download Manager",
+    "urlInputPlaceholder": "Enter file URL",
+    "addDownloadButton": "Add Download",
+    "invalidUrlMessage": "Please enter a valid URL",
+    "pauseButton": "Pause",
+    "resumeButton": "Resume",
+    "downloadFailedMessage": "Download failed for ",
+    "offlineMessage": "You are offline. Pausing all downloads.",
+    "offlineDownloadPausedMessage": "ohh! you are offline download is paused...."
+  }
+  
