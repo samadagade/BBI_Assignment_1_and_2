@@ -1,0 +1,10 @@
+{
+    "cores": [2, 4, 6, 8, 10],
+    "messages": {
+        "noInternet": "No internet connection detected.",
+        "lostInternet": "Ohh! You have lost internet connection.",
+        "restoredInternet": "WOW! Internet connection restored.",
+        "invalidInput": "Please enter a valid number greater than 1."
+    }
+
+}
