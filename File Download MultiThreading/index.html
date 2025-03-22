@@ -3,13 +3,214 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glass UI Download Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to right bottom, #ff416c, #ff4b2b);
+    }
+
+    .glass-container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .glass-container h1 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="url"] {
+      flex-grow: 1;
+      padding: 12px;
+      border-radius: 15px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-size: 16px;
+    }
+
+    input::placeholder {
+      color: #f1f1f1;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.4);
+      color: #fff;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    #downloads {
+      margin-top: 20px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .download-item {
+      padding: 12px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.25);
+      margin-bottom: 10px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 5px;
+      background: #ffffff;
+      border-radius: 0 0 15px 15px;
+      width: 0;
+      transition: width 0.3s;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .controls i {
+      cursor: pointer;
+      font-size: 18px;
+      transition: color 0.3s;
+    }
+
+    .controls i:hover {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-container">
+    <h1 id="app-title">Glass UI Downloader</h1>
+    <div class="input-container">
+      <input id="url-input" type="url" placeholder="Enter file URL" />
+      <button id="add-download">Download</button>
+    </div>
+    <div id="downloads"></div>
+  </div>
+
+  <script>
+    document.getElementById('add-download').addEventListener('click', () => {
+      const urlInput = document.getElementById('url-input');
+      const url = urlInput.value;
+
+      if (!url) return alert("Please enter a URL");
+
+      const fileName = url.split('/').pop();
+      const downloadItem = document.createElement('div');
+      downloadItem.className = 'download-item';
+      downloadItem.innerHTML = `<span>${fileName}</span>`;
+
+      const progressBar = document.createElement('div');
+      progressBar.className = 'progress-bar';
+      downloadItem.appendChild(progressBar);
+
+      const controls = document.createElement('div');
+      controls.className = 'controls';
+      controls.innerHTML = `
+        <i class="fas fa-pause pause"></i>
+        <i class="fas fa-play resume"></i>
+      `;
+      downloadItem.appendChild(controls);
+
+      document.getElementById('downloads').appendChild(downloadItem);
+
+      let xhr;
+      let downloadedBytes = 0;
+      let totalBytes = 0;
+
+      const startDownload = (rangeStart = 0) => {
+        xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.responseType = 'blob';
+        if (rangeStart > 0) xhr.setRequestHeader('Range', `bytes=${rangeStart}-`);
+
+        xhr.onprogress = (event) => {
+          if (event.lengthComputable) {
+            totalBytes = event.total + rangeStart;
+            downloadedBytes = event.loaded + rangeStart;
+            progressBar.style.width = `${(downloadedBytes / totalBytes) * 100}%`;
+          }
+        };
+
+        xhr.onload = () => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(xhr.response);
+          link.download = fileName;
+          link.click();
+          downloadItem.remove();
+        };
+
+        xhr.onerror = () => alert("Error downloading file");
+        xhr.send();
+      };
+
+      startDownload();
+
+      controls.querySelector('.pause').onclick = () => xhr.abort();
+      controls.querySelector('.resume').onclick = () => startDownload(downloadedBytes);
+
+      urlInput.value = '';
+    });
+  </script>
+
+</body>
+</html>
+
+
+ <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Download Manager</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1 id="app-title"></h1>
   <div class="input-container">
-    <input id="url-input" type="text" placeholder="" />
+    <input id="url-input" type="url" placeholder="" />
     <button id="add-download"></button>
   </div>
   <div id="downloads"></div>
@@ -27,4 +228,4 @@
       .catch(error => console.error('Error loading strings:', error));
   </script>
 </body>
-</html>
+</html>  -->

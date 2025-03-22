@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   addDownloadButton.addEventListener('click', () => {
     const url = urlInput.value.trim();
 
-    if (!url) {
+    if (!url || !urlInput.checkValidity()) {
       alert(strings.invalidUrlMessage);
       return;
     }
